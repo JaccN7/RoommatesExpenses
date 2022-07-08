@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta X-Content-Type-Options="nosniff" />
+    <meta name="author" content="JaccN7" />
+    <title>Roommate Expenses</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <!-- Styles CSS -->
+    <link href="../public/css/styles.css" rel="stylesheet" type="text/css" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../public/img/rmex.png">
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/897237bf72.js" crossorigin="anonymous"></script>
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<body class="container-fluid">
+    <h1>Roommates Expenses</h1>
+    <hr class="mb-5 bg-light w-25 mx-auto" />
+    <div class="row w-100 m-auto">
+        
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mt-4">
+            <h4>Roommates
+                <button class="btn text-white  agregarRoommate alinearIzquierda" type="button"><i
+                        class="fa-solid fa-plus"></i></button>
+            </h4>
+            </span>
+            <table class="table">
+                <thead class="text-white">
+                    <th>Nombre</th>
+                    <th>Debe</th>
+                    <th>Recibe</th>
+                </thead>
+                <tbody class="text-white tableRoommates"></tbody>
+            </table>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mt-4">
+            <div class="border rounded p-2 m-auto p-4">
+                <h4>Agregar Gasto</h4>
+                <hr class="bg-light w-25 mx-auto" />
+                <div class="d-flex flex-column align-items-center">
+                    <h6>Roommate</h6>
+                    <select class="form-control w-75 mb-1" id="roommatesSelect" title="roommateSelect"></select>
+                    <h6>Descripción</h6>
+                    <textarea class="form-control w-75 mb-1" id="descripcion" placeholder="Mercaderia"></textarea>
+                    <h6>Monto:</h6>
+                    <input class="form-control w-75 mb-1" id="monto" type="number" placeholder="15000" />
+                </div>
+                <div class="d-block my-1  mt-4">
+                    <button class="btn text-white m-auto" onclick="agregarGasto()" type="button">Agregar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mt-4">
+            <div>
+                <h4>Historial</h4>
+                <hr class="bg-light w-25 mx-auto" />
+                <table class="table">
+                    <thead class="text-white">
+                        <th>Nombre</th>
+                        <th>Comentario</th>
+                        <th>Monto</th>
+                        <th>-</th>
+                    </thead>
+                    <tbody class="text-white" id="gastosHistorial"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+        crossorigin="anonymous"></script>
+    <!-- Scripts -->
+    <script src="../public/js/scripts.js"></script>
+    <script src="../public/js/funciones.js" type="modules"></script>
+</body>
+
+</html>
