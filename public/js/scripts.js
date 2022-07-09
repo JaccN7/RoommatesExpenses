@@ -24,7 +24,7 @@ btnAgregarGasto.addEventListener('click', function () {
 });
 
 const cargarDatos = async () => {
-    await fetch('http://127.0.0.1:3000/roommates')
+    await fetch('https://roommate-expenses.herokuapp.com/roommates')
         .then(response => response.json()).then(json => {
             for (let i = 0; i < json.length; i++) {
                 tableRoommates.innerHTML += (`
@@ -42,7 +42,7 @@ const cargarDatos = async () => {
         .catch(error => {
             console.error(error);
         });
-    await fetch('http://127.0.0.1:3000/gastos')
+    await fetch('https://roommate-expenses.herokuapp.com/gastos')
         .then(response => response.json()).then(resJson => {
             for (let i = 0; i < resJson.length; i++) {
                 tableGastos.innerHTML += (`
@@ -70,7 +70,7 @@ const limpiar = async () => {
 }
 
 const agregarRoommate = async () => {
-    await fetch("http://127.0.0.1:3000/roommates", { method: "POST" })
+    await fetch("https://roommate-expenses.herokuapp.com/roommates", { method: "POST" })
         .then((res) => res.json())
         .then(() => {
             limpiar();
@@ -83,7 +83,7 @@ const agregarRoommate = async () => {
 
 const agregarGasto = async () => {
     datosForm.values();
-    await fetch("http://127.0.0.1:3000/gastos", {
+    await fetch("https://roommate-expenses.herokuapp.com/gastos", {
         method: "POST",
         body: JSON.stringify({
             nombreRoommate: datosForm[0].value,
@@ -101,7 +101,7 @@ const agregarGasto = async () => {
 }
 
 const borrarGasto = async (id) => {
-    await fetch("http://localhost:3000/gasto?id=" + id, { method: "DELETE" })
+    await fetch("https://roommate-expenses.herokuapp.com/gasto?id=" + id, { method: "DELETE" })
         .then(() => {
             limpiar();
             cargarDatos();
