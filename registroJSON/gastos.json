@@ -1,0 +1,14 @@
+[
+    {
+        "id": "f8817c88-54df-4636-806f-d12c9927ad3c",
+        "nombreRoommate": "Walter Willis",
+        "descripcion": "Artículos de cocina",
+        "monto": 25000
+    },
+    {
+        "id": "fe98b255-1ae7-4bd6-a3e7-b04d63c8bc99",
+        "nombreRoommate": "Gilcenira Moura",
+        "descripcion": "Mercadería",
+        "monto": "60000"
+    }
+]
