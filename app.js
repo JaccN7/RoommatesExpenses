@@ -5,8 +5,9 @@ const fs = require('fs');
 const port = process.env.PORT || 3000;
 //Importar UUID (Universally Unique IDentifier)
 const { v4: uuidv4 } = require('uuid');
+const cors = require('cors');
 const nuevoRoommate = require('./api/modules/getRoommate');
-const nuevoGasto = require('./api/modules/getIdRoommate');
+const sendMail = require('./api/modules/mailer');
 
 let roommatesJSON = JSON.parse(fs.readFileSync('./registroJSON/roommates.json', 'utf8'));
 let gastosJSON = JSON.parse(fs.readFileSync('./registroJSON/gastos.json', 'utf8'));
@@ -16,6 +17,7 @@ let arrayRoommates = roommatesJSON;
 let arrayGastos = gastosJSON;
 
 //Control de acceso para permitir todos los origenes
+app.use(cors());
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers",
@@ -30,92 +32,229 @@ app.use((req, res, next) => {
 
 //Archivos Estaticos
 app.use('/public', express.static('public'));
-/* app.use('/css', express.static(__dirname + 'public/css'));
-app.use('/js', express.static(__dirname + 'public/js'));
-app.use('/img', express.static(__dirname + 'public/img')); */
 
 // Rutas
+//Cargar HTML
 app.get('/' || ' ', (req, res) => {
-    fs.readFile('./views/index.html', 'utf8', (err, html) => {
-        if (err) {
-            res.status(404).send('Error 404: No se encontró el archivo');
-            throw err;
-        }
-        res.end(html);
-    });
+    try {
+        fs.readFile('./views/index.html', 'utf8', (err, html) => {
+            res.status(200).end(html);
+        });
+    } catch (error) {
+        res.status(404).send('Error 404: No se encontró el archivo');
+
+    }
+
 });
 
 // Rutas Roommates
 //Obtener todos los roommates
 app.get('/roommates', (req, res, next) => {
-    res.end(JSON.stringify(roommatesJSON));
+    try {
+        res.status(200).end(JSON.stringify(roommatesJSON));
+    } catch (error) {
+        res.status(404).send('Error 404: No se encontraron registros');
+    }
 });
+
+//Obtener un roommate por id
+app.get('/roommates/:id', (req, res, next) => {
+    try {
+        let id = req.params.id;
+        let roommate = roommatesJSON.find(roommate => roommate.id == id);
+        res.status(200).end(JSON.stringify(roommate));
+    } catch (error) {
+        res.status(404).send('Error 404: No existe un roommate con ese id');
+    }
+});
+
 //Agregar un roommate
 app.post('/roommates', (req, res, next) => {
-    req.on('data', () => {
-        res.json({ result: 'OK' });
-    });
-    req.on('end', () => {
-        nuevoRoommate()
-            .then((nombre) => {
-                res.json({ nombre });
-                const roommate = {
-                    id: uuidv4(),
-                    nombre,
-                    debe: '',
-                    recibe: ''
-                }
-                arrayRoommates.push(roommate);
-                fs.writeFile('./registroJSON/roommates.json', JSON.stringify(roommatesJSON), () => {
-                    res.json({ resultado: "Se agrego un nuevo roommate" }).end();
+    try {
+        req.on('data', () => {
+            res.status(200).json({ result: 'OK' });
+        });
+        req.on('end', () => {
+            nuevoRoommate()
+                .then((nombre) => {
+                    const roommate = {
+                        id: uuidv4(),
+                        nombre,
+                        debe: '',
+                        recibe: ''
+                    };
+                    arrayRoommates.push(roommate);
+                    fs.writeFile('./registroJSON/roommates.json', JSON.stringify(roommatesJSON), () => {
+                        res.status(200).json({ resultado: "Se agrego un nuevo roommate" }).end();
+                    });
                 });
-            })
-            .catch((err) => {
-                res.json({ err });
+        });
+    } catch (error) {
+        res.status(400).send('Error 404: No se pudo agregar el roommate');
+    }
+});
+
+//Eliminar un roommate
+app.delete('/roommates/:id', (req, res, next) => {
+    try {
+        const id = req.params.id;
+        const index = arrayRoommates.findIndex((element) => element.id === id);
+        arrayRoommates.splice(index, 1);
+        fs.writeFile('./registroJSON/roommates.json', JSON.stringify(roommatesJSON), () => {
+            res.status(200).json({ resultado: "Se elimino un roommate" }).end();
+        });
+    } catch (error) {
+        res.status(500).json({ err }).end();
+    }
+});
+
+//Actualizar debe y haber de un roommate al presentarse un cambio en gastos
+app.put('/roommates/:id', (req, res, next) => {
+    try {
+        const id = req.params.id;
+        let body;
+        req.on('data', (data) => {
+            body = JSON.parse(data);
+            body.id = id;
+        });
+        req.on('end', () => {
+            //obtener posicion del roommate
+            roommatesJSON = roommatesJSON.map((element) => {
+                if (element.id === body.id) {
+                    return body;
+                }
+                return element;
             });
-    })
+            //sobreescribir el archivo
+            fs.writeFile('./registroJSON/roommates.json', JSON.stringify(roommatesJSON), () => {
+                res.status(200).json({ resultado: "Se actualizo un roommate" }).end();
+
+            });
+        });
+    } catch (error) {
+        res.status(500).json({ err }).end();
+    }
 });
 
 //Rutas para gastos
 //Obtener todos los gastos
 app.get('/gastos', (req, res, next) => {
-    res.end(JSON.stringify(gastosJSON));
+    try {
+        res.status(200).end(JSON.stringify(gastosJSON));
+    } catch (error) {
+        res.status(404).send('Error 404: No se encontraron registros');
+    }
 });
+
 //Agregar un gasto
 app.post('/gastos', (req, res, next) => {
+    try {
+        let body;
+        req.on('data', (data) => {
+            body = JSON.parse(data);
+        });
+        req.on('end', () => {
+            const gasto = {
+                id: uuidv4(),
+                idRoommate: body.idRoommate,
+                nombreRoommate: body.nombreRoommate,
+                descripcion: body.descripcion,
+                monto: body.monto
+            }
+            arrayGastos.push(gasto);
+            fs.writeFile('./registroJSON/gastos.json', JSON.stringify(gastosJSON), () => {
+                res.status(200).json({ resultado: "Se añadio un nuevo gasto" }).end();
+            });
+        })
+    } catch (error) {
+        res.status(500).json({ err }).end();
+    }
+
+});
+
+//Obtener gastos por ID
+app.get('/gastos/:id', (req, res, next) => {
+    try {
+        const id = req.params.id;
+        let gasto = gastosJSON.find((element) => element.id === id);
+        res.json(gasto);
+        res.status(200).end(JSON.stringify(gasto));
+    } catch (error) {
+        res.status(404).send('Error 404: No se encontraron registros');
+    }
+});
+
+//Obtener gastos de un roommate (Buscar por ID de roommate)
+app.get('/gastosroommate/:id', (req, res, next) => {
+    try {
+        const id = req.params.id;
+        let gastos = gastosJSON.filter((element) => element.idRoommate === id);
+        res.status(200).json(gastos);
+    } catch (error) {
+        res.status(404).json({ message: "No hay gastos para este roommate" });
+    }
+});
+
+//Eliminar un gasto (Utilizando el id del gasto)
+app.delete('/gastos/:id', (req, res, next) => {
+    try {
+        const id = req.params.id;
+        const index = gastosJSON.findIndex((element) => element.id === id);
+        arrayGastos.splice(index, 1);
+        fs.writeFile('./registroJSON/gastos.json', JSON.stringify(gastosJSON), () => {
+            res.status(200).json({ resultado: "Se elimino un gasto" }).end();
+        });
+    } catch (error) {
+        res.status(500).json({ err }).end();
+    }
+
+});
+
+//Eliminar todos los gastos de un roommate (Utilizando el id del Roommate)
+app.delete('/gastosroommate/:id', (req, res, next) => {
+    try {
+        const id = req.params.id;
+        //eliminar todos los gastos asociados al roommate
+        gastosJSON = gastosJSON.filter((element) => element.idRoommate !== id);
+        fs.writeFile('./registroJSON/gastos.json', JSON.stringify(gastosJSON), () => {
+            res.status(200).json({ resultado: "Se eliminaron todos los gastos de un roommate" }).end();
+        })
+    } catch (error) {
+        res.status(500).json({ err }).end();
+    }
+});
+
+//Actualizar un gasto (Utilizando el id del gasto)
+app.put('/gastos/:id', (req, res, next) => {
+    try {
+        const id = req.params.id;
+        let body;
+        req.on('data', (data) => {
+            body = JSON.parse(data);
+            body.id = id;
+        });
+        req.on('end', () => {
+            //obtener posicion del gasto
+            gastosJSON = gastosJSON.map((element) => {
+                if (element.id === body.id) {
+                    return body;
+                }
+                return element;
+            });
+            //sobreescribir el archivo
+            fs.writeFile('./registroJSON/gastos.json', JSON.stringify(gastosJSON), () => {
+                res.status(200).json({ resultado: "Se actualizo un gasto" }).end();
+
+            });
+        });
+    } catch (error) {
+        res.status(500).json({ err }).end();
+    }
+    const { id } = url.parse(req.url, true).query;
     let body;
     req.on('data', (data) => {
         body = JSON.parse(data);
     });
-
-    req.on('end', () => {
-        const gasto = {
-            id: uuidv4(),
-            nombreRoommate: body.nombreRoommate,
-            descripcion: body.descripcion,
-            monto: body.monto
-        }
-
-        arrayGastos.push(gasto);
-
-        fs.writeFile('./registroJSON/gastos.json', JSON.stringify(gastosJSON), () => {
-            res.json({ resultado: "Se añadio un nuevo gasto" }).end();
-        });
-    })
-
-});
-//Eliminar un gasto
-app.delete('/gastos/:id', (req, res, next) => {
-    const { id } = url.parse(req.url, true).query;
-
-    gastosJSON.gastos = gastos.filter((g) => g.id !== id);
-
-    fs.writeFileSync('./archivos/gastos.json', JSON.stringify(gastosJSON, null, 1));
-    res.end();
-});
-//Actualizar un gasto
-app.put('/gastos/:id', (req, res, next) => {
-
 });
 
 //Control errores
@@ -124,7 +263,6 @@ app.use((req, res, next) => {
     error.status = 404;
     next(error);
 })
-
 app.use((error, req, res, next) => {
     res.status(error.status || 500);
     fs.readFile('./views/error404.html', 'utf8', (err, html) => {
