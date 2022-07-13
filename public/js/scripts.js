@@ -3,10 +3,9 @@ tableRoommates.innerHTML = '';
 let tableGastos = document.querySelector('.tableGastos');
 tableGastos.innerHTML = '';
 let selectRoommate = document.querySelector('.selectRoommate');
-let selectRoommateModal = document.querySelector('.roommatesSelectModal');
-let optionModal = document.querySelectorAll('.optionModal');
 let btnAgregarRoommate = document.querySelector('.agregarRoommate');
 let btnAgregarGasto = document.querySelector('.agregarGasto');
+let btnAgregarAbono = document.querySelector('.agregarAbono');
 let datosForm = document.querySelectorAll('.datosForm');
 
 //EVENTOS
@@ -21,14 +20,20 @@ btnAgregarRoommate.addEventListener('click', function () {
 });
 
 btnAgregarGasto.addEventListener('click', function () {
-    console.log("Añadiendo un gasto");
-    agregarGasto();
+    let descripcion = "Gasto"
+    agregarGasto(descripcion);
+});
+
+btnAgregarAbono.addEventListener('click', function () {
+    let descripcion = "Abono";
+    agregarAbono(descripcion);
 });
 
 //MOSTRAR DATOS DE ROOMMATES Y GASTOS
 const cargarDatos = async () => {
     //CARGAR ROOMMATES
     try {
+        limpiar();
         const response = await fetch('http://127.0.0.1:3000/roommates');
         const resJson = await response.json();
         for (let i = 0; i < resJson.length; i++) {
@@ -41,32 +46,32 @@ const cargarDatos = async () => {
                     <td>${resJson[i].nombre}</td>
                     <td class="text-danger">${resJson[i].debe ? resJson[i].debe : "-"}</td>
                     <td class="text-success">${resJson[i].haber ? resJson[i].haber : "-"}</td> 
+                    <td class="text-success saldo">${resJson[i].saldo ? resJson[i].saldo : "-"}</td>
                 </tr>`);
             //LISTA DESPLEGABLE DE ROOMMATES EN COLUMNA DE AGREGAR GASTOS
             selectRoommate.innerHTML += (` <option value="${resJson[i].id}">${resJson[i].nombre}</option>`);
-            //LISTA DESPLEGABLE DE ROOMMATES EN MODAL
-            selectRoommateModal.innerHTML += (` <option value="${resJson[i].id}">${resJson[i].nombre}</option>`);
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
-    //CARGAS GASTOS DE LOS ROOMMATES
+    //CARGAR GASTOS DE LOS ROOMMATES
     try {
         const response = await fetch('http://127.0.0.1:3000/gastos');
         const resJson = await response.json();
         for (let i = 0; i < resJson.length; i++) {
             tableGastos.innerHTML += (`
-        <tr>
-            <td>${resJson[i].nombreRoommate}</td>
-            <td>${resJson[i].descripcion}</td>
-            <td>${resJson[i].monto}</td>
-            <td align-items-center justify-content-between">
-            <!-- al hacer click en los botones de editar y borrar, pasamos el valor del id como argumento a una funcion-->
-                <i class="fa-solid fa-pen-to-square" onclick="editarGasto('${resJson[i].id}')" data-toggle="modal" data-target="#exampleModal"></i>
-                <i class="fas fa-trash-alt text-danger" onclick="eliminarGasto('${resJson[i].id}')" ></i>
-            </td>
-        </tr>
-    `);
+            <tr>
+                <td style="display:none"><input value="${resJson[i].idRoommate}" class="form-control inputIDRoommate inputUpdate"/>${resJson[i].nombreRoommate}</td>
+                <td><input value="${resJson[i].nombreRoommate}" disabled="true" class="form-control inputNombre inputUpdate"/></td>
+                <td style="display:none"><input value="${resJson[i].tipoOperacion}" class="form-control inputTipoOpt inputUpdate"/></td>
+                <td><input value="${resJson[i].descripcion}" disabled="true" class="form-control inputDescripcion inputUpdate"/></td>
+                <td><input value="${resJson[i].monto}" disabled="true" class="form-control inputMonto inputUpdate"/></td>
+                <td align-items-center justify-content-between">
+                    <i class="fa-solid fa-pen-to-square edit text-primary" onclick="editarGasto('${resJson[i].id}')"></i>
+                    <i class="fas fa-trash-alt text-danger" onclick="eliminarGasto('${resJson[i].id}')" ></i>
+                </td>
+            </tr>
+            `);
         }
     } catch (error) {
         console.error(error);
@@ -80,112 +85,187 @@ const limpiar = () => {
     tableGastos.innerHTML = '';
     datosForm[0].value = '';
     datosForm[1].value = '';
-}
+};
 
 //AGREGAR UN ROOMMATE
 const agregarRoommate = async () => {
     try {
         await fetch("http://127.0.0.1:3000/roommates", { method: "POST" });
-        limpiar();
         cargarDatos()
     } catch (error) {
         console.error(error);
     }
-}
+};
 
 //ELIMINAR UN ROOMMATE
 const eliminarRoommate = async (id) => {
     try {
-        console.log(`Eliminando roommate con id ${id}`);
         await fetch("http://127.0.0.1:3000/roommates/" + id, {
             method: "DELETE"
         });
-        //Comprobar si existen gastos asociados al roommate que se va a eliminar
-        const response = await fetch('http://127.0.0.1:3000/gastosroommate/' + id);
-        if ( response.status != 200) {
-            console.log("No hay gastos asociados al roommate que se va a eliminar");
-        }else{
-            console.log("Eliminar Gastos asociados al roommate con id: "+ id);
         await fetch("http://127.0.0.1:3000/gastosroommate/" + id, {
             method: "DELETE"
         }); 
-        }
-        limpiar();
-        cargarDatos();
+        await cargarDatos();
     } catch (error) {
         console.error(error);
     }
-}
+};
 
 //AGREGAR UN GASTO
-const agregarGasto = async () => {
+const agregarGasto = async (mensaje) => {
     try {
         let select = selectRoommate.value;
         let text = selectRoommate.options[selectRoommate.selectedIndex].innerText;
         datosForm.values();
+        let monto;
+        if (mensaje === "Gasto") {
+            monto = parseInt(datosForm[1].value);
+        }
+        let descripcion = `${mensaje}: ${datosForm[0].value}`;
         await fetch("http://127.0.0.1:3000/gastos", {
             method: "POST",
             body: JSON.stringify({
                 idRoommate: select,
                 nombreRoommate: text,
-                descripcion: datosForm[0].value,
-                monto: datosForm[1].value
-            })
-        })
-        await actualizarMontos(select);
-        limpiar();
-        cargarDatos();
-    } catch (error) {
-        console.error(error);
-    }
-}
-//ACTUALIZAR MONTOS (DEBE Y HABER) DE UN ROOMMATE
-const actualizarMontos = async (id) => {
-    //OBTENER VALORES ORIGINALES DE DEBE Y HABER
-    try {
-        console.log(`Valor de id: ${id}`);
-        const response = await fetch("http://127.0.0.1:3000/roommates/" + id);
-        const resJson= await response.json();
-        datosForm.values();
-        let nombre = resJson.nombre;
-        console.log(`Nombre: ${nombre}`);
-        let debe = resJson.debe? resJson.debe : 0;
-        let haber = resJson.haber? resJson.haber : 0;
-        console.log(datosForm[1].value);
-        let debenew = Number(datosForm[1].value);
-        debe += debenew;
-        /* let habernew = Number(datosForm[1].value); */ 
-        console.log(`Debe: ${debe}, y es del tipo ${typeof debe}`);
-        console.log(`Debe nuevo ${debenew}, y es del tipo ${typeof debenew}`);
-        //ACTUALIZAR DEBE Y HABER
-        await fetch("http://127.0.0.1:3000/roommates/" + id, {}, {
-            method: "PUT",
-            body: JSON.stringify({
-                id: id,
-                nombre: nombre,
-                debe: debe,
-                haber: haber
+                tipoOperacion: mensaje,
+                descripcion: descripcion,
+                monto: monto
             })
         });
+        await actualizarMontos(select);
     } catch (error) {
         console.error(error);
     }
+};
 
+const agregarAbono = async (mensaje) => {
+    try {
+        let select = selectRoommate.value;
+        let text = selectRoommate.options[selectRoommate.selectedIndex].innerText;
+        datosForm.values();
+        let monto;
+        if (mensaje === "Abono") {
+            monto = parseInt(datosForm[1].value);
+        }
+        let descripcion = `${mensaje}: ${datosForm[0].value}`;
+        await fetch("http://127.0.0.1:3000/gastos", {
+            method: "POST",
+            body: JSON.stringify({
+                idRoommate: select,
+                nombreRoommate: text,
+                tipoOperacion: mensaje,
+                descripcion: descripcion,
+                monto: monto
+            })
+        });
+        await actualizarMontos(select);
+    } catch (error) {
+        console.error(error);
+    }
 }
+
+//ACTUALIZAR MONTOS (DEBE Y HABER) DE UN ROOMMATE
+const actualizarMontos = async (id) => {
+    //OBTENER MONTOS DE LOS GASTOS DEL ROOMMATE
+    try {
+        const response = await fetch('http://127.0.0.1:3000/gastosroommate/' + id);
+        const resJson = await response.json();
+        let debe = 0, haber = 0, saldo = 0;
+        let nombre = resJson[0].nombreRoommate;
+        let idRoommate = resJson[0].idRoommate;
+        for (let i = 0; i < resJson.length; i++) {
+            if (resJson[i].tipoOperacion === "Gasto") {
+                debe += parseInt(resJson[i].monto);
+            }
+            if (resJson[i].tipoOperacion === "Abono") {
+                haber += parseInt(resJson[i].monto);
+            }
+        }
+        saldo = haber - debe;
+
+        //ACTUALIZAR MONTOS DE LOS ROOMMATES
+
+        await fetch("http://127.0.0.1:3000/roommates/" + id, {
+            method: "PUT",
+            body: JSON.stringify({
+                id: idRoommate,
+                nombre: nombre,
+                debe,
+                haber,
+                saldo
+            })
+        });
+        await cargarDatos();
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
+//TRAER TODOS LOS DATOS DE UN GASTO 
+const traerGasto = async (id) => {
+    try {
+        if (!id) {
+            const response = await fetch('http://127.0.0.1:3000/gastos');
+            const resJson = await response.json();
+            return resJson;
+        } else {
+            const response = await fetch('http://127.0.0.1:3000/gastos/' + id);
+            const resJson = await response.json();
+            return resJson;
+        }
+    }
+    catch (error) {
+        console.error(error);
+    }
+};
 
 //EDITAR UN GASTO
 const editarGasto = async (id) => {
+    let inputIDRoommate = document.querySelectorAll(".inputIDRoommate");
+    let inputNombre = document.querySelectorAll(".inputNombre");
+    let inputTipoOpt = document.querySelectorAll(".inputTipoOpt");
+    let inputDescripcion = document.querySelectorAll(".inputDescripcion");
+    let inputMonto = document.querySelectorAll(".inputMonto");
+    let btnEdit = document.querySelectorAll(".edit");
+    let monto;
+    let posicion = 0;
     try {
-        console.log("Editando un gasto");
-        const response = await fetch("http://127.0.0.1:3000/gastos/" + id);
+
+        const response = await fetch('http://127.0.0.1:3000/gastos');
         const resJson = await response.json();
-        console.log(resJson);
-        datosForm[0].value = resJson.descripcion;
-        datosForm[1].value = resJson.monto;
-        selectRoommate.value = resJson.idRoommate;
-        let nombre = resJson.nombreRoommate;
-        limpiar();
-        cargarDatos();
+
+        
+        for (let i = 0; i < resJson.length; i++) {
+            resJson[i].id == id ? posicion = i : posicion;
+        }
+
+        console.log(posicion);
+        if (inputDescripcion[posicion].disabled == true) {
+            inputDescripcion[posicion].disabled = false;
+            inputMonto[posicion].disabled = false;
+            btnEdit[posicion].classList.remove("fa-pen-to-square", "text-primary");
+            btnEdit[posicion].classList.add("fa-check", "text-success");
+        } else {
+            inputDescripcion[posicion].disabled = true;
+            inputMonto[posicion].disabled = true;
+            btnEdit[posicion].classList.remove("fa-check", "text-success");
+            btnEdit[posicion].classList.add("fa-pen-to-square", "text-primary");
+        }
+        monto=parseInt(inputMonto[posicion].value)
+        //Al obtener los valores modificados, se envian a la API
+        const respuesta = await fetch("http://127.0.0.1:3000/gastos/" + id, {
+            method: "PUT",
+            body: JSON.stringify({
+                id: id,
+                idRoommate: inputIDRoommate[posicion].value,
+                nombreRoommate: inputNombre[posicion].value,
+                tipoOperacion: inputTipoOpt[posicion].value,
+                descripcion: inputDescripcion[posicion].value,
+                monto: monto
+            })
+        });
     } catch (error) {
         console.error(error);
     }
@@ -197,10 +277,8 @@ const eliminarGasto = async (id) => {
         await fetch("http://127.0.0.1:3000/gastos/" + id, {
             method: "DELETE"
         });
-        console.log(`Eliminando gasto con id ${id}`);
-        limpiar();
         cargarDatos();
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 };
