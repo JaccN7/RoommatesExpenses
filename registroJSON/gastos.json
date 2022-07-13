@@ -1,14 +1,74 @@
 [
     {
-        "id": "f8817c88-54df-4636-806f-d12c9927ad3c",
-        "nombreRoommate": "Walter Willis",
-        "descripcion": "Artículos de cocina",
-        "monto": 25000
+        "id": "efca3f1e-7c9e-487d-9938-fdcf0dd1d92e",
+        "idRoommate": "18b0e613-391a-4833-a0ff-5cbca854bf9d",
+        "nombreRoommate": "Hetal Gugale",
+        "tipoOperacion": "Gasto",
+        "descripcion": "Gasto: Medicamentos",
+        "monto": 45000
     },
     {
-        "id": "fe98b255-1ae7-4bd6-a3e7-b04d63c8bc99",
-        "nombreRoommate": "Gilcenira Moura",
-        "descripcion": "Mercadería",
-        "monto": "60000"
+        "id": "b3a3bbf4-0d06-4dc6-9c02-cb06c66f91c6",
+        "idRoommate": "18b0e613-391a-4833-a0ff-5cbca854bf9d",
+        "nombreRoommate": "Hetal Gugale",
+        "tipoOperacion": "Abono",
+        "descripcion": "Abono: Pensión",
+        "monto": 400000
+    },
+    {
+        "id": "73e389e2-03e1-4ddd-bebe-e164a7413fad",
+        "idRoommate": "18b0e613-391a-4833-a0ff-5cbca854bf9d",
+        "nombreRoommate": "Hetal Gugale",
+        "tipoOperacion": "Gasto",
+        "descripcion": "Gasto: Medicamentos",
+        "monto": 45000
+    },
+    {
+        "id": "a201ffcb-2a30-4e7a-bda4-8dca56b2c068",
+        "idRoommate": "9b6d9aee-e4c3-4dd5-ab18-73ee388de40f",
+        "nombreRoommate": "Charissa Hogeweg",
+        "tipoOperacion": "Gasto",
+        "descripcion": "Gasto: Matricula ",
+        "monto": 50000
+    },
+    {
+        "id": "d49e7e19-c664-406c-a0e9-40d3e2eaac94",
+        "idRoommate": "608b33ab-bc6f-4777-9c62-384ff0fcc789",
+        "nombreRoommate": "Mildred Green",
+        "tipoOperacion": "Abono",
+        "descripcion": "Abono: Sueldo",
+        "monto": 700000
+    },
+    {
+        "id": "817f100b-f397-4d1a-bfc3-edc92de90b52",
+        "idRoommate": "608b33ab-bc6f-4777-9c62-384ff0fcc789",
+        "nombreRoommate": "Mildred Green",
+        "tipoOperacion": "Gasto",
+        "descripcion": "Gasto: Mercadería ",
+        "monto": 150000
+    },
+    {
+        "id": "e16b0d3d-d850-4bae-bd83-bac20bbbd093",
+        "idRoommate": "18b0e613-391a-4833-a0ff-5cbca854bf9d",
+        "nombreRoommate": "Hetal Gugale",
+        "tipoOperacion": "Gasto",
+        "descripcion": "Gasto: Pagar luz y agua",
+        "monto": 50000
+    },
+    {
+        "id": "de0c2828-a38a-479f-a48c-5f661cbbea07",
+        "idRoommate": "9b6d9aee-e4c3-4dd5-ab18-73ee388de40f",
+        "nombreRoommate": "Charissa Hogeweg",
+        "tipoOperacion": "Gasto",
+        "descripcion": "Gasto: Ocio",
+        "monto": 15000
+    },
+    {
+        "id": "47adf2e8-adc1-4b70-be38-9f8da34488b8",
+        "idRoommate": "608b33ab-bc6f-4777-9c62-384ff0fcc789",
+        "nombreRoommate": "Mildred Green",
+        "tipoOperacion": "Gasto",
+        "descripcion": "Gasto: Reparaciones",
+        "monto": 75000
     }
 ]
