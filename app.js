@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 const nuevoRoommate = require('./api/modules/getRoommate');
 const sendMail = require('./api/modules/mailer');
+const { urlencoded } = require('body-parser');
 
 let roommatesJSON = JSON.parse(fs.readFileSync('./registroJSON/roommates.json', 'utf8'));
 let gastosJSON = JSON.parse(fs.readFileSync('./registroJSON/gastos.json', 'utf8'));
@@ -32,6 +33,8 @@ app.use((req, res, next) => {
 
 //Archivos Estaticos
 app.use('/public', express.static('public'));
+app.use(urlencoded({ extended: true }));
+app.use(express.json());
 
 // Rutas
 //Cargar HTML
@@ -42,9 +45,13 @@ app.get('/' || ' ', (req, res) => {
         });
     } catch (error) {
         res.status(404).send('Error 404: No se encontró el archivo');
-
     }
+});
 
+//Ruta sendMail
+app.post('/sendMail', (req, res) => {
+    sendMail();
+    res.status(200).send('Correo enviado');
 });
 
 // Rutas Roommates
@@ -81,7 +88,8 @@ app.post('/roommates', (req, res, next) => {
                         id: uuidv4(),
                         nombre,
                         debe: '',
-                        recibe: ''
+                        recibe: '',
+                        saldo: '',
                     };
                     arrayRoommates.push(roommate);
                     fs.writeFile('./registroJSON/roommates.json', JSON.stringify(roommatesJSON), () => {
@@ -108,7 +116,7 @@ app.delete('/roommates/:id', (req, res, next) => {
     }
 });
 
-//Actualizar debe y haber de un roommate al presentarse un cambio en gastos
+//Actualizar roommate
 app.put('/roommates/:id', (req, res, next) => {
     try {
         const id = req.params.id;
@@ -118,7 +126,7 @@ app.put('/roommates/:id', (req, res, next) => {
             body.id = id;
         });
         req.on('end', () => {
-            //obtener posicion del roommate
+            //obtener posicion del gasto
             roommatesJSON = roommatesJSON.map((element) => {
                 if (element.id === body.id) {
                     return body;
@@ -127,7 +135,7 @@ app.put('/roommates/:id', (req, res, next) => {
             });
             //sobreescribir el archivo
             fs.writeFile('./registroJSON/roommates.json', JSON.stringify(roommatesJSON), () => {
-                res.status(200).json({ resultado: "Se actualizo un roommate" }).end();
+                res.status(200).json({ resultado: "Se actualizaron los datos de un roommate" }).end();
 
             });
         });
@@ -158,6 +166,7 @@ app.post('/gastos', (req, res, next) => {
                 id: uuidv4(),
                 idRoommate: body.idRoommate,
                 nombreRoommate: body.nombreRoommate,
+                tipoOperacion: body.tipoOperacion,
                 descripcion: body.descripcion,
                 monto: body.monto
             }
@@ -169,7 +178,6 @@ app.post('/gastos', (req, res, next) => {
     } catch (error) {
         res.status(500).json({ err }).end();
     }
-
 });
 
 //Obtener gastos por ID
@@ -250,11 +258,6 @@ app.put('/gastos/:id', (req, res, next) => {
     } catch (error) {
         res.status(500).json({ err }).end();
     }
-    const { id } = url.parse(req.url, true).query;
-    let body;
-    req.on('data', (data) => {
-        body = JSON.parse(data);
-    });
 });
 
 //Control errores
@@ -275,5 +278,5 @@ app.use((error, req, res, next) => {
 
 //Escuchando el servidor en el puerto 3000
 app.listen(port, function () {
-    console.log(`Servidor escuchando en el puerto ${port}`);
+    console.log(`Servidor escuchando en el puerto ${port} ruta principal: http://localhost:${port}/`);
 });
