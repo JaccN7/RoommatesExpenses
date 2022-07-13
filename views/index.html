@@ -25,10 +25,13 @@
     <hr class="mb-5 bg-light w-25 mx-auto" />
     <div class="row w-100 m-auto">
 
-        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mt-4">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 mt-4">
             <h4>Roommates
-                <button class="btn text-white agregarRoommate" type="button">
+                <button class="btn btn-success text-white agregarRoommate" type="button">
                     <i class="fa-solid fa-plus"></i></button>
+                <button class="btn btn-success text-white" type="button" onclick="location.reload()">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
             </h4>
             </span>
             <table class="table">
@@ -37,37 +40,41 @@
                     <th>Nombre</th>
                     <th>Debe</th>
                     <th>Recibe</th>
+                    <th>Saldo</th>
                 </thead>
                 <tbody class="text-white tableRoommates"></tbody>
             </table>
         </div>
-
-        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mt-4">
+        <!-- AGREGAR GASTO/ABONO -->
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 mt-4">
             <div class="border rounded p-2 m-auto p-4">
                 <h4>Agregar Gasto</h4>
                 <hr class="bg-light w-25 mx-auto" />
 
                 <div class="d-flex flex-column align-items-center">
                     <label for="selectRoommate">Roommate:</label>
-                    <select class="form-control w-75 mb-1 selectRoommate" name="selectRoommate" title="select"></select>
+                    <select class="form-select mb-2 w-75 selectRoommate" name="selectRoommate" title="select"></select>
                     <label for="descripcion">Descripción:</label>
-                    <textarea class="form-control w-75 mb-1 datosForm" name="descripcion"
-                        placeholder="Mercaderia"></textarea>
+                    <textarea class="form-control w-75 mb-2 datosForm" name="descripcion"
+                        placeholder="Descripción del gasto o abono"></textarea>
                     <label for="monto">Monto:</label>
                     <input class="form-control w-75 mb-1 datosForm" name="monto" type="number" placeholder="15000" />
                 </div>
                 <div class="d-block my-1  mt-4">
-                    <button class="btn text-white m-auto agregarGasto" type="button">Agregar</button>
+                    <button class="btn btn-danger text-white m-auto agregarGasto button" type="button">Agregar
+                        Gasto</button>
+                    <button class="btn btn-success text-white m-auto agregarAbono  button" type="button">Agregar
+                        Abono</button>
                 </div>
 
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mt-4">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 mt-4">
             <div>
                 <h4>Historial</h4>
                 <hr class="bg-light w-25 mx-auto" />
-                <table class="table">
+                <table class="table tableHistorial">
                     <thead class="text-white">
                         <th>Nombre</th>
                         <th>Comentario</th>
@@ -77,34 +84,6 @@
                     <tbody class="text-white tableGastos"></tbody>
                 </table>
             </div>
-        </div>
-        <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-body">
-                        <div class="border rounded p-2 m-auto p-4">
-                            <h4>Editar Gasto</h4>
-                            <hr class="bg-light w-25 mx-auto" />
-                            <div class="d-flex flex-column align-items-center">
-                                <h6>Roommate</h6>
-                                <select class="form-control w-50 mb-2 roommatesSelectModal"></select>
-                                <h6>Descripción</h6>
-                                <textarea class="form-control w-50 mb-2 optionModal"></textarea>
-                                <h6>Monto:</h6>
-                                <input class="form-control w-50 mb-2 optionModal" type="number" value="20000" />
-                            </div>
-                            <div class="d-block my-1">
-                                <button class="btn text-white m-auto" onclick="updateGasto()">
-                                    Agregar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
