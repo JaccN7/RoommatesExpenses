@@ -3,7 +3,7 @@ body {
     color: #ffffff;
     background: #09096d !important;
     width: 100%;
-    height: 100% ;
+    height: 100%;
     padding: 2%;
     box-sizing: border-box;
 }
@@ -12,53 +12,74 @@ body {
     margin: 0.5rem !important;
 }
 
-button:hover{
-    background: #4a4ae5 !important;
-    border: 1px solid #414df0 !important; 
+button:hover {
+    background: #3f158d8c !important;
 }
 
-#agregarGasto{
+#agregarGasto {
     background: #1414e8 !important;
     border-radius: 10% !important;
 }
 
-.img404{
-    width:25rem;
-    height:25rem;
+.img404 {
+    width: 25rem;
+    height: 25rem;
     margin: 2%;
 }
 
-h1,h2,h3,h4,h5 {
+h1,
+h2,
+h3,
+h4,
+h5 {
     text-transform: uppercase;
 }
 
-i{
+i {
     cursor: pointer;
 }
 
-.tableHistorial{
+.tableHistorial {
     max-width: 100%;
     height: 100%;
     overflow: auto;
     box-sizing: border-box;
-    padding: 1.5%;
+    padding: 3.5%;
 }
 
-.inputUpdate{
+.inputUpdate {
+    text-overflow: ellipsis;
+    min-width: 5.5rem !important;
+}
+
+.inputUpdate:disabled{
     background: transparent !important;
     border: none !important;
     text-overflow: ellipsis;
-    color: #ffffff;
-    min-width: 4.5rem !important;
+    overflow: hidden;
 }
 
-input, select,  option, textarea {
+.inputUpdate:active{
+    background: #ffffff !important;
+    border: 1px solid #1203e5 !important;
+    text-overflow: ellipsis;
+}
+
+.inputUpdate:active:focus{
+    background: #ccc2c2 !important;
+    border: 2px solid #1203e5 !important;
+}
+
+input,
+select,
+option,
+textarea {
     background-color: #1F2223 !important;
     color: #ffffff !important;
 }
 
-input:focus, input:active {
+input:focus,
+input:active {
     background-color: #1F2223 !important;
     border: hidden;
 }
-
