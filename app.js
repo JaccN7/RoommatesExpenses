@@ -243,6 +243,8 @@ app.put('/gastos/:id', (req, res, next) => {
         });
         req.on('end', () => {
             //obtener posicion del gasto
+            const idRoommate = gastosJSON.find((element) => element.id === id).idRoommate;
+            const montoOriginal = gastosJSON.find((element) => element.id === id).monto;
             gastosJSON = gastosJSON.map((element) => {
                 if (element.id === body.id) {
                     return body;
@@ -251,7 +253,7 @@ app.put('/gastos/:id', (req, res, next) => {
             });
             //sobreescribir el archivo
             fs.writeFile('./registroJSON/gastos.json', JSON.stringify(gastosJSON), () => {
-                res.status(200).json({ resultado: "Se actualizo un gasto" }).end();
+                res.status(200).json({ resultado: "Se actualizo un gasto", idRoommate: idRoommate, montoOriginal: montoOriginal }).end();
             });
         });
     } catch (error) {

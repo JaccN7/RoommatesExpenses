@@ -11,22 +11,24 @@ let datosForm = document.querySelectorAll('.datosForm');
 //EVENTOS
 window.addEventListener("load", function () {
     cargarDatos();
-    console.log("DOM cargado");
 });
 
 btnAgregarRoommate.addEventListener('click', function () {
-    console.log("Añadiendo un roommate");
     agregarRoommate();
 });
 
 btnAgregarGasto.addEventListener('click', function () {
     let descripcion = "Gasto"
+    if(datosForm[0].value != '' && datosForm[1].value != ''){
     agregarGasto(descripcion);
+    }
 });
 
 btnAgregarAbono.addEventListener('click', function () {
     let descripcion = "Abono";
+    if(datosForm[0].value != '' && datosForm[1].value != ''){
     agregarAbono(descripcion);
+    }
 });
 
 //MOSTRAR DATOS DE ROOMMATES Y GASTOS
@@ -202,25 +204,6 @@ const actualizarMontos = async (id) => {
     }
 }
 
-
-//TRAER TODOS LOS DATOS DE UN GASTO 
-const traerGasto = async (id) => {
-    try {
-        if (!id) {
-            const response = await fetch('http://127.0.0.1:3000/gastos');
-            const resJson = await response.json();
-            return resJson;
-        } else {
-            const response = await fetch('http://127.0.0.1:3000/gastos/' + id);
-            const resJson = await response.json();
-            return resJson;
-        }
-    }
-    catch (error) {
-        console.error(error);
-    }
-};
-
 //EDITAR UN GASTO
 const editarGasto = async (id) => {
     let inputIDRoommate = document.querySelectorAll(".inputIDRoommate");
@@ -232,15 +215,12 @@ const editarGasto = async (id) => {
     let monto;
     let posicion = 0;
     try {
-
         const response = await fetch('http://127.0.0.1:3000/gastos');
         const resJson = await response.json();
 
         for (let i = 0; i < resJson.length; i++) {
             resJson[i].id == id ? posicion = i : posicion;
         }
-
-        console.log(posicion);
         if (inputDescripcion[posicion].disabled == true) {
             inputDescripcion[posicion].disabled = false;
             inputMonto[posicion].disabled = false;
@@ -265,6 +245,13 @@ const editarGasto = async (id) => {
                 monto: monto
             })
         });
+        const respuestaJson = await respuesta.json();
+        const roommateId = respuestaJson.idRoommate;
+        const montoOriginal = respuestaJson.montoOriginal;
+        if (montoOriginal != monto) {
+            await actualizarMontos(roommateId); 
+        }
+        console.log(montoOriginal);
     } catch (error) {
         console.error(error);
     }
@@ -280,9 +267,7 @@ const eliminarGasto = async (id) => {
         const roommateId = resJson.idRoommate;
         if (roommateId) {
             await actualizarMontos(roommateId);
-        } else {
-            console.log("Error al eliminar");
-        }
+        } 
     } catch (error) {
         console.error(error);
     }
