@@ -88,7 +88,7 @@ app.post('/roommates', (req, res, next) => {
                         id: uuidv4(),
                         nombre,
                         debe: '',
-                        recibe: '',
+                        haber: '',
                         saldo: '',
                     };
                     arrayRoommates.push(roommate);
@@ -207,15 +207,15 @@ app.get('/gastosroommate/:id', (req, res, next) => {
 app.delete('/gastos/:id', (req, res, next) => {
     try {
         const id = req.params.id;
+        const idRoommate = gastosJSON.find((element) => element.id === id).idRoommate;
         const index = gastosJSON.findIndex((element) => element.id === id);
         arrayGastos.splice(index, 1);
         fs.writeFile('./registroJSON/gastos.json', JSON.stringify(gastosJSON), () => {
-            res.status(200).json({ resultado: "Se elimino un gasto" }).end();
+            res.status(200).json({ message: "Se elimino un gasto", idRoommate: idRoommate}).end();
         });
     } catch (error) {
         res.status(500).json({ err }).end();
     }
-
 });
 
 //Eliminar todos los gastos de un roommate (Utilizando el id del Roommate)
@@ -252,7 +252,6 @@ app.put('/gastos/:id', (req, res, next) => {
             //sobreescribir el archivo
             fs.writeFile('./registroJSON/gastos.json', JSON.stringify(gastosJSON), () => {
                 res.status(200).json({ resultado: "Se actualizo un gasto" }).end();
-
             });
         });
     } catch (error) {
