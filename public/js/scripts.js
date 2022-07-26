@@ -105,7 +105,7 @@ const eliminarRoommate = async (id) => {
         });
         await fetch("http://127.0.0.1:3000/gastosroommate/" + id, {
             method: "DELETE"
-        }); 
+        });
         await cargarDatos();
     } catch (error) {
         console.error(error);
@@ -236,7 +236,6 @@ const editarGasto = async (id) => {
         const response = await fetch('http://127.0.0.1:3000/gastos');
         const resJson = await response.json();
 
-        
         for (let i = 0; i < resJson.length; i++) {
             resJson[i].id == id ? posicion = i : posicion;
         }
@@ -253,7 +252,7 @@ const editarGasto = async (id) => {
             btnEdit[posicion].classList.remove("fa-check", "text-success");
             btnEdit[posicion].classList.add("fa-pen-to-square", "text-primary");
         }
-        monto=parseInt(inputMonto[posicion].value)
+        monto = parseInt(inputMonto[posicion].value)
         //Al obtener los valores modificados, se envian a la API
         const respuesta = await fetch("http://127.0.0.1:3000/gastos/" + id, {
             method: "PUT",
@@ -274,10 +273,16 @@ const editarGasto = async (id) => {
 //ELIMINAR UN GASTO
 const eliminarGasto = async (id) => {
     try {
-        await fetch("http://127.0.0.1:3000/gastos/" + id, {
+        const result = await fetch("http://127.0.0.1:3000/gastos/" + id, {
             method: "DELETE"
         });
-        cargarDatos();
+        const resJson = await result.json();
+        const roommateId = resJson.idRoommate;
+        if (roommateId) {
+            await actualizarMontos(roommateId);
+        } else {
+            console.log("Error al eliminar");
+        }
     } catch (error) {
         console.error(error);
     }
